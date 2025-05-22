@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../ThemeContext';
 import ProductSelectionModal from './productselectionmodule';
 import '../styles/claims.css';
 
@@ -32,7 +32,12 @@ const ClaimsPage = () => {
       <button className="new-claim-btn" onClick={() => setShowProductModal(true)}>
         + File New Claim
       </button>
-      <ProductSelectionModal open={showProductModal} onClose={() => setShowProductModal(false)} />
+      {showProductModal && (
+        <ProductSelectionModal
+          open={true}
+          onClose={() => setShowProductModal(false)}
+        />
+      )}
     </div>
   );
 };

@@ -1,17 +1,14 @@
-import React, { createContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import './styles/auth.css';
 import logo from './assets/enhanced/cic_insurance.png';
-
-// Create and export the ThemeContext
-export const ThemeContext = createContext();
+import { ThemeContext } from './ThemeContext';
 
 function App() {
-  const [theme, setTheme] = useState('light');
+  const { theme } = useContext(ThemeContext);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      <div className="app-container" style={{
+    <div className={`app-container ${theme}-mode`} style={{
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -19,7 +16,9 @@ function App() {
       minHeight: '100vh',
       padding: '20px',
       textAlign: 'center',
-      backgroundColor: '#f8f9fa'
+      backgroundColor: theme === 'dark' ? '#232526' : '#f8f9fa',
+      color: theme === 'dark' ? '#fff' : '#333',
+      transition: 'background-color 0.3s, color 0.3s'
     }}>
       <img
         src={logo}
@@ -53,7 +52,7 @@ function App() {
           borderRadius: '5px',
           textDecoration: 'none',
           fontSize: '1.1rem',
-          transition: 'background-color 0.3s ease'
+          transition: 'background-color 0.5s ease'
         }}>Login</Link>
         <Link to="/register" style={{
           backgroundColor: '#f8f9fa',
@@ -75,7 +74,8 @@ function App() {
           transition: 'background-color 0.3s ease',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem'
+          gap: '0.5rem',
+          marginBottom: '1rem'
         }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
@@ -85,9 +85,30 @@ function App() {
           </svg>
           Modern Calendar
         </Link>
+
+        <Link to="/datepicker" style={{
+          backgroundColor: '#800000',
+          color: 'white',
+          padding: '0.8rem 2rem',
+          borderRadius: '5px',
+          textDecoration: 'none',
+          fontSize: '1.1rem',
+          transition: 'background-color 0.3s ease',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
+            <path d="M16 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M8 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M3 10H21" stroke="currentColor" strokeWidth="2" />
+            <circle cx="12" cy="15" r="2" fill="currentColor" />
+          </svg>
+          Enhanced DatePicker
+        </Link>
       </div>
     </div>
-    </ThemeContext.Provider>
   );
 }
 

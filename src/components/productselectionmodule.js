@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './productselectionmodel.css';
 
@@ -49,17 +49,17 @@ const products = [
   },
 ];
 
-export default function ProductSelectionModal({ open, onClose, onSelect }) {
+function ProductSelectionModal({ open, onClose, onSelect }) {
   const navigate = useNavigate();
-  
+
   if (!open) return null;
-  
+
   const handleProductClick = (product) => {
-    // Navigate to the QuoteFormSummary page with product details
+    // Navigate first, then close the modal
     navigate('/quoteformsummary', { state: { product } });
     onClose();
   };
-  
+
   return (
     <div className="product-modal-backdrop">
       <div className="product-modal">
@@ -72,9 +72,9 @@ export default function ProductSelectionModal({ open, onClose, onSelect }) {
         <hr className="product-modal-divider" />
         <div className="product-modal-grid">
           {products.map((p, i) => (
-            <div 
-              className="product-modal-card" 
-              key={i} 
+            <div
+              className="product-modal-card"
+              key={i}
               onClick={() => handleProductClick(p)}
               style={{ cursor: 'pointer' }}
             >
@@ -87,4 +87,7 @@ export default function ProductSelectionModal({ open, onClose, onSelect }) {
       </div>
     </div>
   );
-} 
+}
+
+// Export a memoized version of the component to prevent unnecessary re-renders
+export default memo(ProductSelectionModal);

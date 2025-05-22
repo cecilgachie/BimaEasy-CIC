@@ -1,0 +1,64 @@
+/* Legacy theme styles from auth.css */
+
+/* Global styles for dark and light themes */
+body.theme-dark {
+  background: #232526 !important;
+  color: #fff !important;
+  transition: background-color 0.3s, color 0.3s !important;
+}
+
+body.theme-light {
+  background: #f8f9fa !important;
+  color: #222 !important;
+  transition: background-color 0.3s, color 0.3s !important;
+}
+
+/* Theme mode classes */
+.dark-mode {
+  background-color: #232526 !important;
+  color: #fff !important;
+  transition: background-color 0.3s, color 0.3s !important;
+}
+
+.light-mode {
+  background-color: #f8f9fa !important;
+  color: #222 !important;
+  transition: background-color 0.3s, color 0.3s !important;
+}
+
+/* Theme toggle button styles */
+.theme-toggle-btn {
+  transition: color 0.3s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.theme-toggle-btn:hover {
+  background-color: rgba(128, 0, 0, 0.1);
+}
+
+body.theme-dark .theme-toggle-btn {
+  color: #fff !important;
+}
+
+body.theme-light .theme-toggle-btn {
+  color: #800000 !important;
+}
+
+/* Ensure all elements inherit theme colors */
+* {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.throbbing-logo {
+  animation: throbbing 1.5s infinite ease-in-out;
+}
+
+@keyframes throbbing {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../ThemeContext';
 import cicLogo from '../assets/cic_insurance.png';
 
 const containerStyle = {
