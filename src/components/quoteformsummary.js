@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import DatePickerManager from './shared/DatePickerManager';
+import DatePicker from '../components/shared/date picker';
+import ModernReceipt from './shared/Receipt';
 import './quoteformsummary.css';
-import './shared/DatePickerManager.css';
-import { ThemeContext } from '../App';
+import '../components/shared/datepicker.css';
+import { ThemeContext } from '../ThemeContext';
 
 // Common fields used across multiple forms
 const commonFields = {
@@ -15,7 +16,7 @@ const commonFields = {
     { name: 'email', label: 'Email', type: 'email', placeholder: 'Enter your email address', required: true },
   ],
   motorVehicleBase: [
-    { name: 'vehicleMake', label: 'Vehicle Make', type: 'select', options: ['Select Vehicle Make', 'Toyota', 'Nissan', 'Ford', 'Chevrolet', 'Honda', 'Hyundai', 'Kia', 'Mercedes-Benz', 'BMW', 'Audi', 'Volkswagen', 'Volvo', 'Jeep', 'Land Rover', 'Lexus', 'Mazda', 'Mercedes-Benz', 'Mini', 'Mitsubishi', 'Nissan', 'Peugeot', 'Renault', 'Skoda', 'Subaru', 'Suzuki', 'Toyota', 'Volkswagen', 'Volvo'], required: true },
+    { name: 'vehicleMake', label: 'Vehicle Make', type: 'select', options: ['Select Vehicle Make', 'Toyota', 'Nissan', 'Ford', 'Chevrolet', 'Honda', 'Hyundai', 'Kia', 'Mercedes-Benz', 'BMW', 'Audi', 'Volkswagen', 'Volvo', 'Jeep', 'Land Rover', 'Lexus', 'Mazda', 'Mini', 'Mitsubishi', 'Peugeot', 'Renault', 'Skoda', 'Subaru', 'Suzuki'], required: true },
     { name: 'vehicleModel', label: 'Vehicle Model', type: 'select', options: ['Select Vehicle Model', 'Corolla', 'Camry', 'RAV4', 'Highlander', 'Land Cruiser', 'Prado', 'Fortuner', 'Hilux', 'Altima', 'Sentra', 'Patrol', 'X-Trail', 'Navara', 'Focus', 'Ranger', 'F-150', 'Escape', 'EcoSport', 'Malibu', 'Cruze', 'Silverado', 'Tahoe', 'Suburban', 'Civic', 'Accord', 'CR-V', 'HR-V', 'Pilot', 'Elantra', 'Tucson', 'Santa Fe', 'i20', 'i30', 'Sportage', 'Sorento', 'Rio', 'Picanto', 'C-Class', 'E-Class', 'S-Class', 'GLC', 'GLE', '3 Series', '5 Series', 'X3', 'X5', 'A3', 'A4', 'A6', 'Q3', 'Q5', 'Golf', 'Passat', 'Tiguan', 'Polo', 'XC40', 'XC60', 'XC90', 'Wrangler', 'Cherokee', 'Grand Cherokee', 'Range Rover', 'Discovery', 'Defender', 'Evoque', 'ES', 'RX', 'LX', 'NX', 'CX-5', 'CX-30', 'Mazda3', 'Mazda6', 'Cooper', 'Countryman', 'Outlander', 'Pajero', 'ASX', 'Eclipse Cross', '208', '308', '3008', '5008', 'Clio', 'Megane', 'Duster', 'Koleos', 'Octavia', 'Superb', 'Kodiaq', 'Karoq', 'Forester', 'Outback', 'Impreza', 'XV', 'Swift', 'Jimny', 'Vitara', 'Ertiga'], required: true },
     { name: 'year', label: 'Year of Manufacture', type: 'text', placeholder: 'YOM', required: true, note: 'Maximum vehicle age for comprehensive cover is 15 yrs' },
     { name: 'vehicleValue', label: 'Vehicle Value', type: 'text', placeholder: 'Kes', required: true, note: 'Minimum value for comprehensive cover is Kes 500,000' },
@@ -25,14 +26,14 @@ const commonFields = {
 // Define coverage plans for each product
 const productCoveragePlans = {
   'CIC Seniors Mediplan': [
-    { id: 'basic', name: 'Basic Plan', priceMultiplier: 0.8, features: ['Outpatient care', 'Basic dental', 'Basic optical'] },
+    { id: 'basic', name: 'Basic Plan', priceMultiplier: 0.8, features: ['Outpatient care', 'Basic dental', 'Basic optical', 'Chronic disease management'] },
     { id: 'standard', name: 'Standard Plan', priceMultiplier: 1.0, features: ['Outpatient care', 'Inpatient care', 'Dental care', 'Optical care', 'Chronic disease management'] },
     { id: 'premium', name: 'Premium Plan', priceMultiplier: 1.3, features: ['Comprehensive outpatient care', 'Comprehensive inpatient care', 'Advanced dental care', 'Advanced optical care', 'Chronic disease management', 'International emergency coverage', 'Medical evacuation'] }
   ],
   'CIC Family Medisure': [
     { id: 'basic', name: 'Family Basic', priceMultiplier: 0.8, features: ['Outpatient care', 'Basic dental & optical', 'Maternity care'] },
-    { id: 'standard', name: 'Family Standard', priceMultiplier: 1.0, features: ['Outpatient care', 'Inpatient care', 'Dental care', 'Optical care', 'Maternity care', 'Child immunization'] },
-    { id: 'premium', name: 'Family Premium', priceMultiplier: 1.3, features: ['Comprehensive outpatient care', 'Comprehensive inpatient care', 'Advanced dental care', 'Advanced optical care', 'Expanded maternity coverage', 'Child immunization & wellness', 'International coverage'] }
+    { id: 'standard', name: 'Family Standard', priceMultiplier: 1.5, features: ['Outpatient care', 'Inpatient care', 'Dental care', 'Optical care', 'Maternity care', 'Child immunization'] },
+    { id: 'premium', name: 'Family Premium', priceMultiplier: 2.0, features: ['Comprehensive outpatient care', 'Comprehensive inpatient care', 'Advanced dental care', 'Advanced optical care', 'Expanded maternity coverage', 'Child immunization & wellness', 'International coverage'] }
   ],
   'Motor Commercial Insurance': [
     { id: 'basic', name: 'Third Party Only', priceMultiplier: 0.6, features: ['Legal liability to third parties', 'Injury to other people', 'Damage to other people\'s property'] },
@@ -65,22 +66,25 @@ const productFormFields = {
   'CIC Seniors Mediplan': [
     ...commonFields.contactInfo,
     { name: 'dob', label: 'What is your Date of Birth?', type: 'date', placeholder: 'Pick Date of Birth', required: true },
-    { name: 'gender', label: 'Gender', type: 'select', options: ['Male', 'Female'], required: true },
-    { name: 'maritalStatus', label: 'Marital Status', type: 'select', options: ['Single', 'Married', 'Divorced', 'Widowed'], required: true },
-    { name: 'spouse', label: 'Do you have and want to insure your spouse?', type: 'select', options: ['No', 'Yes'], required: true },
+    { name: 'gender', label: 'Gender', type: 'select', options: ['--Select--','Male', 'Female'], required: true },
+    { name: 'maritalStatus', label: 'Marital Status', type: 'select', options: ['--Select--','Single', 'Married', 'Divorced', 'Widowed'], required: true },
+    { name: 'spouse', label: 'Do you have and want to insure your spouse?', type: 'select', options: ['--Select--','No', 'Yes'], required: true },
+    { name: 'spouseDob', label: 'Spouse Date of Birth', type: 'date', placeholder: 'Pick Spouse Date of Birth', required: false, showWhen: { field: 'spouse', value: 'Yes' } },
   ],
   'CIC Family Medisure': [
     ...commonFields.contactInfo,
     { name: 'dob', label: 'What is your Date of Birth?', type: 'date', placeholder: 'Pick Date of Birth', required: true },
-    { name: 'gender', label: 'Gender', type: 'select', options: ['Male', 'Female'], required: true },
-    { name: 'maritalStatus', label: 'Marital Status', type: 'select', options: ['Single', 'Married', 'Divorced', 'Widowed'], required: true },
-    { name: 'spouse', label: 'Do you have and want to insure your spouse?', type: 'select', options: ['No', 'Yes'], required: true },
-    { name: 'children', label: 'Do you have children you want to insure?', type: 'select', options: ['No', 'Yes'], required: true },
+    { name: 'gender', label: 'Gender', type: 'select', options: ['--Select--','Male', 'Female'], required: true },
+    { name: 'maritalStatus', label: 'Marital Status', type: 'select', options: ['--Select--','Single', 'Married', 'Divorced', 'Widowed'], required: true },
+    { name: 'spouse', label: 'Do you have and want to insure your spouse?', type: 'select', options: ['--Select--','No', 'Yes'], required: true },
+    { name: 'spouseDob', label: 'Spouse Date of Birth', type: 'date', placeholder: 'Pick Spouse Date of Birth', required: false, showWhen: { field: 'spouse', value: 'Yes' } },
+    { name: 'children', label: 'Do you have children you want to insure?', type: 'select', options: ['--Select--','No', 'Yes'], required: true },
+
   ],
   'Motor Commercial Insurance': [
     ...commonFields.contactInfo,
     ...commonFields.motorVehicleBase,
-    { name: 'vehicleBodyType', label: 'Vehicle Body Type', type: 'select', options: ['lorry', 'bus', 'car', 'motorcycle', 'other'], required: true },
+    { name: 'vehicleBodyType', label: 'Vehicle Body Type', type: 'select', options: ['--Select--','lorry', 'bus', 'car', 'motorcycle', 'other'], required: true },
     { name: 'vehicleTonnage', label: 'Vehicle Tonnage', type: 'text', placeholder: '1', required: true },
     { name: 'specialNote', type: 'note', value: 'N/B: Refer to back office on +254 793 772 728 or +254 113 921 047 for special type e.g Petroleum tankers, Ambulance, Fire engines, psv assets among others', color: 'red' },
   ],
@@ -91,7 +95,7 @@ const productFormFields = {
     { name: 'department', label: 'Department', type: 'select', options: ['Select Department', 'IT', 'HR', 'Marketing', 'Sales', 'Finance', 'Operations', 'Customer Service', 'Other'], required: true },
     { name: 'attachmentStart', label: 'Attachment Start Date', type: 'date', placeholder: 'Pick Policy Start Date', required: true },
     { name: 'attachmentEnd', label: 'Attachment End Date', type: 'date', placeholder: 'Pick Policy End Date', required: true },
-    { name: 'duration', label: 'Duration of Attachment', type: 'select', options: ['12 Months', '6 Months', '3 Months', '1 Month'], required: true },
+    { name: 'duration', label: 'Duration of Attachment', type: 'select', options: ['Number of Months','12 Months', '6 Months', '3 Months', '1 Month'], required: true },
   ],
   'Private Motor Insurance': [
     ...commonFields.contactInfo,
@@ -127,33 +131,41 @@ const FormField = ({ field, form, setForm }) => {
       </div>
     );
   }
-  
+
+  // Check if field should be shown based on conditions
+  if (field.showWhen) {
+    const { field: dependentField, value } = field.showWhen;
+    if (form[dependentField] !== value) {
+      return null;
+    }
+  }
+
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
-  
+
   // Get options for dependent fields
   const getFieldOptions = (field) => {
     if (!field.dependsOn) {
       return field.options || [];
     }
-    
+
     // For port fields that depend on mode of transport
     if (field.name === 'portOrigin') {
       const mode = form.mode;
       const country = form.countryOrigin;
-      
+
       if (!mode || mode === 'Select Option') {
         return ['Select Port/Airport (Choose mode first)'];
       }
-      
+
       if (mode === 'Sea') {
         // Return seaports based on selected origin country
         if (!country || country === 'Select Option') {
           return ['Select Seaport (Choose country first)'];
         }
-        
+
         // Return specific seaports for each country
         const seaportsByCountry = {
           'China': ['Select Seaport', 'Shanghai', 'Ningbo-Zhoushan', 'Shenzhen', 'Guangzhou', 'Qingdao', 'Tianjin', 'Dalian'],
@@ -175,14 +187,14 @@ const FormField = ({ field, form, setForm }) => {
           'Rwanda': ['Select Seaport', 'Inland ports only'],
           'Ethiopia': ['Select Seaport', 'Uses Djibouti Port']
         };
-        
+
         return seaportsByCountry[country] || ['Select Seaport', 'Major Seaport', 'Other Seaport'];
       } else if (mode === 'Air') {
         // Return airports based on selected origin country
         if (!country || country === 'Select Option') {
           return ['Select Airport (Choose country first)'];
         }
-        
+
         // Return specific airports for each country
         const airportsByCountry = {
           'China': ['Select Airport', 'Beijing Capital', 'Shanghai Pudong', 'Guangzhou Baiyun', 'Chengdu Shuangliu', 'Shenzhen Bao\'an'],
@@ -201,25 +213,25 @@ const FormField = ({ field, form, setForm }) => {
           'Rwanda': ['Select Airport', 'Kigali International'],
           'Ethiopia': ['Select Airport', 'Addis Ababa Bole International']
         };
-        
+
         return airportsByCountry[country] || ['Select Airport', 'Major Airport', 'Other Airport'];
       }
       return ['Select Port/Airport (Choose mode first)'];
     }
-    
+
     // For destination ports/airports that depend on both mode and country
     if (field.name === 'portDest') {
       const mode = form.mode;
       const country = form.countryDest;
-      
+
       if (!mode || mode === 'Select Option') {
         return ['Select Port/Airport (Choose mode first)'];
       }
-      
+
       if (!country || country === 'Select Option') {
         return ['Select Port/Airport (Choose country first)'];
       }
-      
+
       if (mode === 'Sea') {
         // Return seaports based on selected destination country
         const seaportsByCountry = {
@@ -263,7 +275,7 @@ const FormField = ({ field, form, setForm }) => {
           'Thailand': ['Select Seaport', 'Laem Chabang', 'Bangkok', 'Map Ta Phut'],
           'Vietnam': ['Select Seaport', 'Ho Chi Minh City', 'Haiphong', 'Da Nang']
         };
-        
+
         return seaportsByCountry[country] || ['Select Seaport', 'Major Seaport', 'Other Seaport'];
       } else if (mode === 'Air') {
         // Return airports based on selected destination country
@@ -308,15 +320,15 @@ const FormField = ({ field, form, setForm }) => {
           'Thailand': ['Select Airport', 'Bangkok Suvarnabhumi', 'Phuket International', 'Chiang Mai International'],
           'Vietnam': ['Select Airport', 'Ho Chi Minh Tan Son Nhat', 'Hanoi Noi Bai', 'Da Nang International']
         };
-        
+
         return airportsByCountry[country] || ['Select Airport', 'Major Airport', 'Other Airport'];
       }
       return ['Select Port/Airport (Choose mode and country first)'];
     }
-    
+
     return field.options || [];
   };
-  
+
   // Check if field should be disabled
   const isFieldDisabled = (field) => {
     if (field.dependsOn) {
@@ -328,16 +340,16 @@ const FormField = ({ field, form, setForm }) => {
     }
     return false;
   };
-  
+
   return (
     <label>
       {field.label} {field.required && <span className="required">*</span>}
-      
+
       {field.type === 'select' ? (
-        <select 
-          name={field.name} 
-          value={form[field.name] || ''} 
-          onChange={handleChange} 
+        <select
+          name={field.name}
+          value={form[field.name] || ''}
+          onChange={handleChange}
           required={field.required}
           className="quote-form-select"
           disabled={isFieldDisabled(field)}
@@ -347,8 +359,7 @@ const FormField = ({ field, form, setForm }) => {
           ))}
         </select>
       ) : field.type === 'date' ? (
-        <DatePickerManager
-          type={field.name === 'dob' ? 'birth' : 'policy'}
+        <DatePicker
           form={form}
           setForm={setForm}
           name={field.name}
@@ -381,11 +392,11 @@ const CoveragePlan = ({ plans, selectedPlan, onSelectPlan }) => {
   return (
     <div className="coverage-plans-container">
       <h2>Select Your Coverage Plan</h2>
-      <p className="coverage-subtitle">Choose the coverage that best fits your needs</p>
-      
+      <p className="coverage-subtitle">Choose the coverage that best fits you best</p>
+
       <div className="coverage-plans-grid">
         {plans.map((plan) => (
-          <div 
+          <div
             key={plan.id}
             className={`coverage-plan-card ${selectedPlan?.id === plan.id ? 'selected' : ''}`}
             onClick={() => onSelectPlan(plan)}
@@ -394,7 +405,7 @@ const CoveragePlan = ({ plans, selectedPlan, onSelectPlan }) => {
               <h3>{plan.name}</h3>
               {selectedPlan?.id === plan.id && <div className="plan-selected-badge">Selected</div>}
             </div>
-            
+
             <div className="coverage-plan-features">
               <h4>Features</h4>
               <ul>
@@ -405,8 +416,8 @@ const CoveragePlan = ({ plans, selectedPlan, onSelectPlan }) => {
                 ))}
               </ul>
             </div>
-            
-            <button 
+
+            <button
               className={`coverage-plan-select ${selectedPlan?.id === plan.id ? 'selected' : ''}`}
             >
               {selectedPlan?.id === plan.id ? 'Selected' : 'Select Plan'}
@@ -418,82 +429,9 @@ const CoveragePlan = ({ plans, selectedPlan, onSelectPlan }) => {
   );
 };
 
-// Receipt component
-const Receipt = ({ formData, product, quoteAmount, selectedPlan, onClose, onDownload }) => {
-  const today = new Date().toLocaleDateString();
-  const receiptNumber = `CIC-${Math.floor(100000 + Math.random() * 900000)}`;
-  const policyNumber = `POL-${Math.floor(1000000 + Math.random() * 9000000)}`;
-  
-  return (
-    <div className="receipt-overlay">
-      <div className="receipt-modal">
-        <div className="receipt-header">
-          <h2>Insurance Policy Receipt</h2>
-          <button className="receipt-close-btn" onClick={onClose}>×</button>
-        </div>
-        
-        <div className="receipt-content">
-          <div className="receipt-logo">
-            <img src={require('../assets/cic_insurance.png')} alt="CIC Insurance Group" />
-          </div>
-          
-          <div className="receipt-info">
-            <p><strong>Receipt #:</strong> {receiptNumber}</p>
-            <p><strong>Date:</strong> {today}</p>
-            <p><strong>Policy #:</strong> {policyNumber}</p>
-          </div>
-          
-          <div className="receipt-customer">
-            <h3>Customer Details</h3>
-            <p><strong>Name:</strong> {formData.name}</p>
-            <p><strong>Email:</strong> {formData.email}</p>
-            <p><strong>Phone:</strong> {formData.phone}</p>
-            {formData.idNumber && <p><strong>ID Number:</strong> {formData.idNumber}</p>}
-          </div>
-          
-          <div className="receipt-product">
-            <h3>Policy Details</h3>
-            <p><strong>Product:</strong> {product.title}</p>
-            {selectedPlan && (
-              <div className="receipt-plan-details">
-                <p><strong>Plan:</strong> {selectedPlan.name}</p>
-                <p><strong>Coverage:</strong></p>
-                <ul className="plan-features">
-                  {selectedPlan.features.map((feature, idx) => (
-                    <li key={idx}>{feature}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <p><strong>Premium Amount:</strong> KES {quoteAmount.toLocaleString()}</p>
-            <p><strong>Payment Status:</strong> <span className="purchase-success">PAID</span></p>
-            <p><strong>Coverage Period:</strong> 12 months from {today}</p>
-            
-            {product.title === 'Marine Cargo Policy' && (
-              <div className="receipt-cargo-details">
-                <h4>Insured Cargo Details</h4>
-                <p><strong>Goods Category:</strong> {formData.goodsCategory}</p>
-                <p><strong>Goods Description:</strong> {formData.goodsDescription}</p>
-                <p><strong>Value of Goods:</strong> KES {parseFloat(formData.goodsValue.replace(/[^0-9.]/g, '')).toLocaleString()}</p>
-                <p><strong>Mode of Conveyance:</strong> {formData.mode}</p>
-                <p><strong>Origin:</strong> {formData.countryOrigin} ({formData.portOrigin})</p>
-                <p><strong>Destination:</strong> {formData.countryDest} ({formData.portDest})</p>
-              </div>
-            )}
-          </div>
-          
-          <div className="receipt-footer">
-            <p>Thank you for choosing CIC Insurance Group!</p>
-            <p>Your policy is now active. A confirmation email has been sent to your registered email address with full policy documentation.</p>
-            <p><strong>For support:</strong> callc@cic.co.ke or +254 703 099 120</p>
-          </div>
-        </div>
-        
-        <button className="receipt-download-btn" onClick={onDownload}>Download Receipt</button>
-      </div>
-    </div>
-  );
-};
+
+
+export { productCoveragePlans };
 
 export default function QuoteFormSummary() {
   const { theme } = useContext(ThemeContext);
@@ -505,11 +443,11 @@ export default function QuoteFormSummary() {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [baseQuoteAmount, setBaseQuoteAmount] = useState(0);
   const [formErrors, setFormErrors] = useState({});
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const { product } = location.state || {};
-  
+
   useEffect(() => {
     if (!product) {
       // Add a message if navigating without product data and redirect
@@ -523,32 +461,32 @@ export default function QuoteFormSummary() {
       return () => clearTimeout(timer);
     }
   }, [navigate, product]);
-  
+
   // Adding a loading state check
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     // Simulate data loading
     if (product) {
       setIsLoading(false);
     }
   }, [product]);
-  
+
   // Validate the form
   const validateForm = () => {
     const errors = {};
     let isValid = true;
-    
+
     fields.forEach(field => {
       if (field.required) {
         const value = form[field.name];
-        
-        if (!value || value === '' || 
+
+        if (!value || value === '' ||
             (field.type === 'select' && (value === `Select ${field.label}` || value.startsWith('Select ')))) {
           errors[field.name] = `${field.label} is required`;
           isValid = false;
         }
-        
+
         // Validate email format
         if (field.type === 'email' && value) {
           const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -557,7 +495,7 @@ export default function QuoteFormSummary() {
             isValid = false;
           }
         }
-        
+
         // Validate phone number format
         if (field.name === 'phone' && value) {
           const phonePattern = /^[+]?[\d\s-]{10,15}$/;
@@ -568,11 +506,11 @@ export default function QuoteFormSummary() {
         }
       }
     });
-    
+
     setFormErrors(errors);
     return isValid;
   };
-  
+
   if (isLoading) {
     return (
       <div className="loading-container">
@@ -581,13 +519,13 @@ export default function QuoteFormSummary() {
       </div>
     );
   }
-  
+
   if (!product) {
     return (
       <div className="error-container">
         <h2>Missing Product Information</h2>
         <p>Unable to generate a quote without product information.</p>
-        <button 
+        <button
           onClick={() => navigate('/dashboard')}
           className="error-back-button"
         >
@@ -596,7 +534,7 @@ export default function QuoteFormSummary() {
       </div>
     );
   }
-  
+
   const fields = productFormFields[product.title] || [];
   const coveragePlans = productCoveragePlans[product.title] || [];
 
@@ -611,23 +549,23 @@ export default function QuoteFormSummary() {
       'Golfers / Sportsman Insurance': 15000,
       'Marine Cargo Policy': 50000
     };
-    
+
     const base = baseAmounts[product.title] || 10000;
-    
+
     // Add some variability based on form data
-    let multiplier = 1.0;
-    
+    let multiplier = 1.2;
+
     if (formData.vehicleValue) {
       const value = parseFloat(formData.vehicleValue.replace(/[^0-9.]/g, ''));
       if (!isNaN(value)) {
         multiplier = 1 + (value / 5000000); // Adjust based on vehicle value
       }
     }
-    
+
     // Count family members and adjust price
     let spouseCount = 0;
     let childCount = 0;
-    
+
     // Count family members by checking family fields
     Object.keys(formData).forEach(key => {
       if (key.startsWith('family') && key.endsWith('Type')) {
@@ -639,47 +577,47 @@ export default function QuoteFormSummary() {
         }
       }
     });
-    
+
     // Add 50% per spouse
     if (spouseCount > 0) {
       multiplier += spouseCount * 0.5;
     }
-    
+
     // Add 20% per child
     if (childCount > 0) {
       multiplier += childCount * 0.2;
     }
-    
+
     if (formData.goodsValue) {
       const value = parseFloat(formData.goodsValue.replace(/[^0-9.]/g, ''));
       if (!isNaN(value)) {
         multiplier = 1 + (value / 10000000); // Adjust based on goods value
       }
-      
+
       // Adjust multiplier based on goods category for Marine Cargo Policy
       if (product.title === 'Marine Cargo Policy' && formData.goodsCategory) {
-        const highRiskCategories = ['Electronics', 'Pharmaceuticals', 'Chemicals'];
-        const mediumRiskCategories = ['Machinery', 'Automotive Parts', 'Consumer Goods'];
-        
+        const highRiskCategories = ['Electronics', 'Pharmaceuticals', 'Chemicals', 'Food Products', 'Raw Materials'];
+        const mediumRiskCategories = ['Machinery', 'Automotive Parts', 'Consumer Goods', 'Textiles', 'Agricultural Products'];
+
         if (highRiskCategories.includes(formData.goodsCategory)) {
           multiplier *= 1.5; // 50% premium for high-risk categories
         } else if (mediumRiskCategories.includes(formData.goodsCategory)) {
           multiplier *= 1.25; // 25% premium for medium-risk categories
         }
-        
+
         // Add 10% premium for air transport as it's typically more expensive
         if (formData.mode === 'Air') {
           multiplier *= 1.1;
         }
       }
     }
-    
+
     return Math.round(base * multiplier);
   };
 
   const handleSubmit = e => {
     e.preventDefault();
-    
+
     // Validate the form
     if (!validateForm()) {
       // Scroll to the first error
@@ -689,11 +627,11 @@ export default function QuoteFormSummary() {
       }
       return;
     }
-    
+
     // Generate a quote amount as the base amount
     const baseAmount = generateQuoteAmount(product, form);
     setBaseQuoteAmount(baseAmount);
-    
+
     // Set default plan to standard (middle option)
     if (coveragePlans.length >= 2) {
       const standardPlan = coveragePlans[1]; // Standard plan is usually the middle option
@@ -705,24 +643,24 @@ export default function QuoteFormSummary() {
     } else {
       setQuoteAmount(baseAmount);
     }
-    
+
     // Save quote to show plan selection
     setQuoteSaved(true);
-    
+
     // Scroll to top to show the plans
     window.scrollTo(0, 0);
   };
 
   const handlePlanSelect = (plan) => {
     setSelectedPlan(plan);
-    
+
     // Recalculate the quote amount based on the selected plan
     const newQuoteAmount = Math.round(baseQuoteAmount * plan.priceMultiplier);
     setQuoteAmount(newQuoteAmount);
-    
+
     // Mark plan as selected
     setPlanSelected(true);
-    
+
     // Scroll up to show the selected plan
     window.scrollTo(0, 0);
   };
@@ -750,10 +688,10 @@ export default function QuoteFormSummary() {
 
   const handleCloseReceipt = () => {
     setShowReceipt(false);
-    
+
     // Navigate to dashboard after closing receipt
-    navigate('/dashboard', { 
-      state: { 
+    navigate('/dashboard', {
+      state: {
         productDetails: product,
         formData: form,
         quoteAmount: quoteAmount,
@@ -767,25 +705,25 @@ export default function QuoteFormSummary() {
     const receiptContent = document.querySelector('.receipt-content').innerHTML;
     const style = `
       <style>
-        body { 
+        body {
           font-family: Arial, sans-serif;
           padding: 20px;
           max-width: 800px;
           margin: 0 auto;
           color: #333;
         }
-        .receipt-logo { 
+        .receipt-logo {
           text-align: center;
           margin-bottom: 30px;
         }
-        .receipt-info { 
+        .receipt-info {
           border: 1px solid #eee;
           border-radius: 5px;
           padding: 15px;
           margin-bottom: 20px;
           background-color: #f9f9f9;
         }
-        .receipt-customer, .receipt-product { 
+        .receipt-customer, .receipt-product {
           margin-bottom: 30px;
         }
         h1 {
@@ -793,7 +731,7 @@ export default function QuoteFormSummary() {
           color: #800000;
           margin-bottom: 30px;
         }
-        h3 { 
+        h3 {
           color: #800000;
           border-bottom: 1px solid #eee;
           padding-bottom: 10px;
@@ -802,8 +740,8 @@ export default function QuoteFormSummary() {
           margin: 15px 0 10px;
           color: #555;
         }
-        .purchase-success { 
-          background-color: #38761d;
+        .purchase-success {
+          background-color:rgb(51, 107, 27);
           color: white;
           padding: 3px 8px;
           border-radius: 4px;
@@ -816,15 +754,15 @@ export default function QuoteFormSummary() {
           border-radius: 5px;
           border-left: 3px solid #800000;
         }
-        .plan-features { 
+        .plan-features {
           margin: 10px 0 10px 20px;
           padding-left: 0;
         }
-        .plan-features li { 
+        .plan-features li {
           margin-bottom: 8px;
           list-style-type: disc;
         }
-        .receipt-footer { 
+        .receipt-footer {
           margin-top: 30px;
           padding-top: 20px;
           border-top: 1px solid #eee;
@@ -845,27 +783,27 @@ export default function QuoteFormSummary() {
         }
       </style>
     `;
-    
+
     // Create a new window for the PDF
     const receiptWindow = window.open('', '_blank');
-    
+
     // Get current date formatted nicely
     const today = new Date();
     const formattedDate = today.toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long', 
+      month: 'long',
       day: 'numeric'
     });
-    
+
     // Calculate expiry date (1 year from today)
     const expiryDate = new Date(today);
     expiryDate.setFullYear(expiryDate.getFullYear() + 1);
     const formattedExpiryDate = expiryDate.toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long', 
+      month: 'long',
       day: 'numeric'
     });
-    
+
     receiptWindow.document.write(`
       <html>
         <head>
@@ -885,7 +823,7 @@ export default function QuoteFormSummary() {
         </body>
       </html>
     `);
-    
+
     // Print and close the window after a slight delay to ensure it's rendered
     setTimeout(() => {
       receiptWindow.print();
@@ -910,15 +848,15 @@ export default function QuoteFormSummary() {
           <h1 className="quote-form-title">Get Your {product.title} Quote</h1>
           <p className="quote-form-subtitle">Complete the form below to receive a personalized quote</p>
         </div>
-        
+
         <div className="quote-form-layout">
           <div className="quote-form-main">
             {!quoteSaved ? (
               <form onSubmit={handleSubmit}>
                 {fields.map((field, idx) => (
                   <div key={field.name || idx} className={formErrors[field.name] ? 'quote-form-group error' : 'quote-form-group'}>
-                    <FormField 
-                      field={field} 
+                    <FormField
+                      field={field}
                       form={form}
                       setForm={setForm}
                     />
@@ -936,13 +874,13 @@ export default function QuoteFormSummary() {
                   Based on your information, we've prepared the following coverage options for {product.title}.
                   Please select a plan that best fits your needs.
                 </p>
-                
+
                 <div className="base-quote-info">
                   <p>Base premium amount: <strong>KES {baseQuoteAmount.toLocaleString()}</strong></p>
                   <p className="base-quote-note">Final amount will depend on the coverage plan you select.</p>
                 </div>
-                
-                <CoveragePlan 
+
+                <CoveragePlan
                   plans={coveragePlans}
                   selectedPlan={selectedPlan}
                   onSelectPlan={handlePlanSelect}
@@ -969,14 +907,14 @@ export default function QuoteFormSummary() {
                   </div>
                 </div>
                 <div className="quote-actions">
-                  <button 
-                    className="quote-change-plan" 
+                  <button
+                    className="quote-change-plan"
                     onClick={handleChangeSelection}
                   >
                     Change Selection
                   </button>
-                  <button 
-                    className="quote-purchase-btn" 
+                  <button
+                    className="quote-purchase-btn"
                     onClick={handlePurchase}
                   >
                     Purchase Now
@@ -995,15 +933,20 @@ export default function QuoteFormSummary() {
             </div>
           </div>
         </div>
-        
+
         {showReceipt && (
-          <Receipt 
-            formData={form}
-            product={product}
-            quoteAmount={quoteAmount}
-            selectedPlan={selectedPlan}
+          <ModernReceipt
+            data={{
+              ...form,
+              product: product,
+              amount: quoteAmount,
+              plan: selectedPlan,
+              receiptNumber: `CIC-${Math.floor(100000 + Math.random() * 900000)}`,
+              policyNumber: `POL-${Math.floor(1000000 + Math.random() * 9000000)}`
+            }}
             onClose={handleCloseReceipt}
             onDownload={handleDownloadReceipt}
+            type="policy"
           />
         )}
       </div>

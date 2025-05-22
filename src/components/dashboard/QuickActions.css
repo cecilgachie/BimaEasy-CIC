@@ -1,0 +1,73 @@
+.quick-actions {
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.quick-actions h2 {
+  color: #800000;
+  margin-bottom: 20px;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: white;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background: #f5f5f5;
+  transform: translateY(-2px);
+}
+
+.action-btn.primary {
+  background: #800000;
+  color: white;
+  border-color: #800000;
+}
+
+.action-btn.primary:hover {
+  background: #600000;
+}
+
+.action-btn svg {
+  font-size: 1.2rem;
+}
+
+/* Animation */
+.slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+} 

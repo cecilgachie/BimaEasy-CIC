@@ -1,12 +1,14 @@
-import React, { useState, useContext } from 'react';
-import { ThemeContext } from '../App';
+import React, { useState, useContext, useEffect } from 'react';
+import { ThemeContext } from '../ThemeContext';
 import cicLogo from '../assets/cic_insurance.png';
+import '../styles/theme.css';
 
 const SettingsPage = () => {
-  const { theme } = useContext(ThemeContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const [useSystemTheme, setUseSystemTheme] = useState(!localStorage.getItem('theme'));
 
   // State for profile info
-  const [profile, setProfile] = useState({ name: 'John Doe', email: 'john.doe@email.com' });
+  const [profile, setProfile] = useState({ name: 'Andy Mugata Ked', email: 'andy.mugata@cicgroup.co.ke' });
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
 
@@ -20,12 +22,21 @@ const SettingsPage = () => {
   const [smsNotif, setSmsNotif] = useState(true);
   const [notifMsg, setNotifMsg] = useState('');
 
-  // State for theme
-  const [darkMode, setDarkMode] = useState(false);
-
   // State for delete confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteMsg, setDeleteMsg] = useState('');
+
+  const handleThemeChange = (newTheme) => {
+    if (newTheme === 'system') {
+      localStorage.removeItem('theme');
+      setUseSystemTheme(true);
+      // Let the ThemeContext handle system theme
+    } else {
+      localStorage.setItem('theme', newTheme);
+      setUseSystemTheme(false);
+      toggleTheme();
+    }
+  };
 
   // Handlers
   const handleProfileChange = (e) => {
@@ -68,11 +79,6 @@ const SettingsPage = () => {
     // TODO: Integrate with API
   };
 
-  const handleThemeToggle = () => {
-    setDarkMode((v) => !v);
-    // Optionally persist theme
-  };
-
   const handleDeleteAccount = () => {
     setShowDeleteConfirm(false);
     setDeleteMsg('Account deleted. (Simulated)');
@@ -80,49 +86,61 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className={`settings-page ${theme}-mode`} style={{
+    <div className={`settings-page theme-container ${theme}-mode`} style={{
       minHeight: '100vh',
-      background: darkMode
-        ? 'linear-gradient(135deg, #232526 0%, #414345 100%)'
-        : 'linear-gradient(135deg, #f8fafc 0%, #e3e6f3 100%)',
-      color: darkMode ? '#fff' : '#222',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '40px 0',
-      transition: 'background 0.3s, color 0.3s'
+      padding: '40px 0'
     }} aria-label="Settings Page">
-      <div style={{
-        background: darkMode ? '#2c2c2c' : '#fff',
-        borderRadius: '18px',
-        boxShadow: '0 6px 32px rgba(80, 0, 0, 0.10)',
+      <div className="theme-card" style={{
         padding: '40px 32px',
         maxWidth: 420,
         width: '100%',
         textAlign: 'center',
-        position: 'relative',
-        transition: 'background 0.3s'
+        position: 'relative'
       }}>
         <img src={cicLogo} alt="CIC Logo" style={{ width: 80, marginBottom: 24 }} />
-        <h1 style={{ color: '#800000', fontWeight: 700, marginBottom: 24 }}>Settings</h1>
-        {/* Theme Switcher */}
-        <div style={{ position: 'absolute', top: 24, right: 32 }}>
-          <button
-            aria-label="Toggle dark mode"
-            onClick={handleThemeToggle}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: darkMode ? '#fff' : '#800000',
-              fontSize: 20,
-              cursor: 'pointer',
-              outline: 'none'
-            }}
-          >
-            {darkMode ? '🌙' : '☀️'}
-          </button>
+        <h1 className="theme-text" style={{ color: '#800000', fontWeight: 700, marginBottom: 24 }}>Settings</h1>
+        
+        {/* Theme Settings */}
+        <div className="settings-section" style={{ marginBottom: 24 }}>
+          <h2 className="theme-text" style={{ color: '#A92219', fontSize: 18, marginBottom: 16 }}>Theme Settings</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <label className="theme-text" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="radio"
+                name="theme"
+                checked={useSystemTheme}
+                onChange={() => handleThemeChange('system')}
+                style={{ accentColor: '#A92219' }}
+              />
+              Use System Theme
+            </label>
+            <label className="theme-text" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="radio"
+                name="theme"
+                checked={!useSystemTheme && theme === 'light'}
+                onChange={() => handleThemeChange('light')}
+                style={{ accentColor: '#A92219' }}
+              />
+              Light Theme
+            </label>
+            <label className="theme-text" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="radio"
+                name="theme"
+                checked={!useSystemTheme && theme === 'dark'}
+                onChange={() => handleThemeChange('dark')}
+                style={{ accentColor: '#A92219' }}
+              />
+              Dark Theme
+            </label>
+          </div>
         </div>
+
         <div className="settings-section" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           {/* Profile Info */}
           <h2 style={{ color: '#A92219', fontSize: 18, marginBottom: 8 }}>Profile Information</h2>
@@ -135,7 +153,7 @@ const SettingsPage = () => {
                 type="text"
                 value={profile.name}
                 onChange={handleProfileChange}
-                style={{ borderRadius: 8, border: '1px solid #e0e0e0', padding: '10px', background: darkMode ? '#444' : '#f8f8f8', color: darkMode ? '#fff' : '#222' }}
+                style={{ borderRadius: 8, border: '1px solid #e0e0e0', padding: '10px', background: theme === 'dark' ? '#444' : '#f8f8f8', color: theme === 'dark' ? '#fff' : '#222' }}
                 aria-label="Name"
                 required
               />
@@ -146,7 +164,7 @@ const SettingsPage = () => {
                 type="email"
                 value={profile.email}
                 onChange={handleProfileChange}
-                style={{ borderRadius: 8, border: '1px solid #e0e0e0', padding: '10px', background: darkMode ? '#444' : '#f8f8f8', color: darkMode ? '#fff' : '#222' }}
+                style={{ borderRadius: 8, border: '1px solid #e0e0e0', padding: '10px', background: theme === 'dark' ? '#444' : '#f8f8f8', color: theme === 'dark' ? '#fff' : '#222' }}
                 aria-label="Email"
                 required
               />
@@ -202,7 +220,7 @@ const SettingsPage = () => {
               placeholder="New Password"
               value={password}
               onChange={handlePasswordChange}
-              style={{ borderRadius: 8, border: '1px solid #e0e0e0', padding: '10px', background: darkMode ? '#444' : '#f8f8f8', color: darkMode ? '#fff' : '#222', marginBottom: 8 }}
+              style={{ borderRadius: 8, border: '1px solid #e0e0e0', padding: '10px', background: theme === 'dark' ? '#444' : '#f8f8f8', color: theme === 'dark' ? '#fff' : '#222', marginBottom: 8 }}
               aria-label="New Password"
               required
             />

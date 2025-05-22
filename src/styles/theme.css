@@ -1,0 +1,123 @@
+/* Theme Variables */
+:root {
+  /* Light Theme Colors */
+  --light-bg-primary: #f8f9fa;
+  --light-bg-secondary: #ffffff;
+  --light-text-primary: #222222;
+  --light-text-secondary: #666666;
+  --light-border: #e0e0e0;
+  --light-shadow: rgba(80, 0, 0, 0.10);
+  
+  /* Dark Theme Colors */
+  --dark-bg-primary: #232526;
+  --dark-bg-secondary: #2c2c2c;
+  --dark-text-primary: #ffffff;
+  --dark-text-secondary: #cccccc;
+  --dark-border: #404040;
+  --dark-shadow: rgba(0, 0, 0, 0.3);
+  
+  /* Common Colors */
+  --brand-primary: #800000;
+  --brand-secondary: #A92219;
+  --success: #008000;
+  --error: #A92219;
+  
+  /* Transitions */
+  --theme-transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Theme Mode Classes */
+.light-mode {
+  --bg-primary: var(--light-bg-primary);
+  --bg-secondary: var(--light-bg-secondary);
+  --text-primary: var(--light-text-primary);
+  --text-secondary: var(--light-text-secondary);
+  --border-color: var(--light-border);
+  --shadow-color: var(--light-shadow);
+}
+
+.dark-mode {
+  --bg-primary: var(--dark-bg-primary);
+  --bg-secondary: var(--dark-bg-secondary);
+  --text-primary: var(--dark-text-primary);
+  --text-secondary: var(--dark-text-secondary);
+  --border-color: var(--dark-border);
+  --shadow-color: var(--dark-shadow);
+}
+
+/* Common Theme Styles */
+.theme-container {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: var(--theme-transition);
+}
+
+.theme-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 6px 32px var(--shadow-color);
+  transition: var(--theme-transition);
+}
+
+.theme-text {
+  color: var(--text-primary);
+  transition: var(--theme-transition);
+}
+
+.theme-text-secondary {
+  color: var(--text-secondary);
+  transition: var(--theme-transition);
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: var(--theme-transition);
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--shadow-color);
+}
+
+/* Form Elements */
+.theme-input {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  transition: var(--theme-transition);
+}
+
+.theme-input:focus {
+  border-color: var(--brand-primary);
+  outline: none;
+}
+
+/* Buttons */
+.theme-button {
+  background: linear-gradient(90deg, var(--brand-secondary) 0%, var(--brand-primary) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: var(--theme-transition);
+}
+
+.theme-button:hover {
+  opacity: 0.9;
+}
+
+.theme-button-secondary {
+  background: var(--bg-secondary);
+  color: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
+}
+
+.theme-button-secondary:hover {
+  background: var(--shadow-color);
+} 

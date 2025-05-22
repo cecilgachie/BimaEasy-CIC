@@ -1,12 +1,13 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../ThemeContext';
 import logo from '../assets/enhanced/cic_insurance.png';
 import { USER_TYPES, validateIdentifier } from '../utils/auth';
 
 function ForgotPassword() {
   const navigate = useNavigate();
   const { theme } = useContext(ThemeContext);
+  const [isVisible, setIsVisible] = useState(false);
   const [formData, setFormData] = useState({
     userType: USER_TYPES.CUSTOMER,
     identifierValue: ''
@@ -15,6 +16,11 @@ function ForgotPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [emailSent, setEmailSent] = useState('');
+
+  useEffect(() => {
+    // Trigger animation after component mounts
+    setIsVisible(true);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -135,8 +141,9 @@ function ForgotPassword() {
         borderRadius: '20px',
         padding: '35px',
         backgroundColor: '#fff',
-        animation: 'fadeIn 0.4s ease-out',
-        overflow: 'hidden'
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateX(0)' : 'translateX(100px)',
+        transition: 'opacity 1.5s ease-out, transform 1.5s ease-out'
       }}>
         {/* Decorative elements */}
         <div style={{

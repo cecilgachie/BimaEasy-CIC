@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import { ThemeContext } from './App';
+import { ThemeContext, ThemeProvider } from './ThemeContext';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
-import './styles/auth.css';
+import './styles/main.css';
 import logo from './assets/enhanced/cic_insurance.png';
 import picture1 from './assets/picture1.jpg';
 import picture2 from './assets/picture2.jpg';
@@ -18,7 +18,6 @@ import Register from './components/register';
 import QuoteFormSummary from './components/quoteformsummary';
 import App from './App';
 import FAQs from './components/FAQs';
-import CalendarExample from './components/examples/CalendarExample';
 import AnalyticsPage from './components/AnalyticsPage';
 import MyProfilePage from './components/MyProfilePage';
 import PoliciesPage from './components/PoliciesPage';
@@ -26,6 +25,7 @@ import ClaimsPage from './components/ClaimsPage';
 import PaymentsPage from './components/PaymentsPage';
 import SupportPage from './components/SupportPage';
 import SettingsPage from './components/SettingsPage';
+import DatePickerDemo from './components/DatePickerDemo';
 
 // Import authentication utilities
 import {
@@ -96,12 +96,10 @@ class ErrorBoundary extends React.Component {
 function LoginSignup() {
   const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [passwordVisible, setPasswordVisible] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [_isLoading, setIsLoading] = useState(true);
-  // eslint-disable-next-line no-unused-vars
-  const [_error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isPaused, setIsPaused] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
@@ -110,49 +108,28 @@ function LoginSignup() {
     userType: 'customer',
     idNumber: '',
     password: '',
-    confirmPassword: '',
     rememberMe: false
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginError, setLoginError] = useState('');
-  // eslint-disable-next-line no-unused-vars
-  const [_socialLoading, setSocialLoading] = useState({
-    google: false,
-    facebook: false
-  });
-  // eslint-disable-next-line no-unused-vars
-  const [_showSignUp, setShowSignUp] = useState(false);
-  const [toast, setToast] = useState({ show: false, message: '', type: '' });
-  const [signupData, setSignupData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    userType: 'customer',
-    password: '',
-    confirmPassword: '',
-    agreeToTerms: false
-  });
-  const [signupErrors, setSignupErrors] = useState({});
-  const [signupStep, setSignupStep] = useState(1);
   const [focusedInputs, setFocusedInputs] = useState({});
   const [validatedFields, setValidatedFields] = useState({});
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const slides = [
     { image: picture1, description: 'Welcome to CIC EasyBima' },
     { image: picture2, description: 'Your trusted insurance partner' },
     { image: picture3, description: 'Easy insurance solutions' },
     { image: picture4, description: 'Guide to insurance' },
     { image: picture5, description: 'Guides through life' },
+    { image: picture6, description: 'Your complete insurance solution' },
   ];
 
   const nextSlide = useCallback(() => {
     if (isTransitioning) return;
     setIsTransitioning(true);
     setTimeout(() => {
-      setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+      setCurrentImageIndex((prevSlide) => (prevSlide + 1) % slides.length);
       setIsTransitioning(false);
     }, 50);
   }, [slides.length, isTransitioning]);
@@ -161,15 +138,10 @@ function LoginSignup() {
     if (isTransitioning) return;
     setIsTransitioning(true);
     setTimeout(() => {
-      setCurrentSlide((prevSlide) => (prevSlide - 1 + slides.length) % slides.length);
+      setCurrentImageIndex((prevSlide) => (prevSlide - 1 + slides.length) % slides.length);
       setIsTransitioning(false);
     }, 50);
   }, [slides.length, isTransitioning]);
-
-  // eslint-disable-next-line no-unused-vars
-  const _togglePause = useCallback(() => {
-    setIsPaused(prev => !prev);
-  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -209,42 +181,30 @@ function LoginSignup() {
     setTouchEnd(null);
   };
 
-  // Enhanced image preloading for 4K images
   useEffect(() => {
     let isMounted = true;
     const preloadImages = async () => {
       try {
         setIsLoading(true);
-
-        // Create an array to track loading progress
         const totalImages = slides.length;
         let loadedImages = 0;
-
         await Promise.all(slides.map(slide => {
           return new Promise((resolve, reject) => {
             const img = new Image();
-
-            // Set image loading attributes for high quality
             img.setAttribute('importance', 'high');
             img.setAttribute('loading', 'eager');
             img.setAttribute('decoding', 'sync');
-
-            // Set source and event handlers
             img.src = slide.image;
-
             img.onload = () => {
               loadedImages++;
               if (isMounted) {
-                // Update loading progress if needed
                 console.log(`Loaded image ${loadedImages}/${totalImages}`);
               }
               resolve();
             };
-
             img.onerror = reject;
           });
         }));
-
         if (isMounted) {
           setIsLoading(false);
         }
@@ -256,40 +216,27 @@ function LoginSignup() {
         }
       }
     };
-
     preloadImages();
-
-    // Cleanup function to prevent state updates on unmounted component
     return () => {
       isMounted = false;
     };
   }, [slides]);
 
-  // Fix slider auto-rotation to prevent DOM errors
   useEffect(() => {
+    let interval;
     if (!isPaused) {
-      const interval = setInterval(() => {
-        // Only proceed if document is visible and not in transition
+      interval = setInterval(() => {
         if (document && !document.hidden && !isTransitioning) {
-          nextSlide();
+          setCurrentImageIndex((prevIndex) => (prevIndex + 1) % slides.length);
         }
-      }, 3000);
-
-      // Cleanup interval on component unmount or dependency change
-      return () => {
-        clearInterval(interval);
-      };
+      }, 5000);
     }
-    // Return empty cleanup function when paused to maintain consistent return
-    return () => {};
-  }, [isPaused, nextSlide, isTransitioning]);
-
-  const formatPhoneNumber = (value) => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 6) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
-  };
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isPaused, slides.length, isTransitioning]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -310,7 +257,6 @@ function LoginSignup() {
     e.preventDefault();
     setLoginError('');
 
-    // Validate form inputs
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -321,7 +267,6 @@ function LoginSignup() {
     try {
       console.log('Login attempt with:', formData);
 
-      // Use the centralized login function
       const result = await login({
         identifier: formData.idNumber,
         userType: formData.userType,
@@ -330,8 +275,6 @@ function LoginSignup() {
 
       if (result.success) {
         console.log('Login successful, redirecting to dashboard');
-
-        // Use a timeout to ensure state is updated before navigation
         setTimeout(() => {
           navigate('/dashboard');
         }, 100);
@@ -349,91 +292,17 @@ function LoginSignup() {
   const validateForm = () => {
     const errors = {};
 
-    // Validate ID/Passport Number or KRA PIN using centralized validation
     const identifierValidation = validateIdentifier(formData.idNumber, formData.userType);
     if (!identifierValidation.isValid) {
       errors.idNumber = identifierValidation.error;
     }
 
-    // Validate Password using centralized validation
     const passwordValidation = validatePassword(formData.password);
     if (!passwordValidation.isValid) {
       errors.password = passwordValidation.error;
     }
 
-    // Only check confirmPassword if it's being used (for sign-up, not login)
-    if (formData.confirmPassword !== undefined && formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
-    }
-
-    // Always log validation results for debugging
-    console.log('Form validation results:', {
-      hasErrors: Object.keys(errors).length > 0,
-      errors,
-      formData
-    });
-
     return errors;
-  };
-
-  const showToast = (message, type = 'success') => {
-    setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const _handleSocialLogin = async (provider) => {
-    setSocialLoading(prev => ({ ...prev, [provider.toLowerCase()]: true }));
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      showToast(`Successfully logged in with ${provider}!`, 'success');
-    } catch (error) {
-      showToast(`${provider} login failed. Please try again.`, 'error');
-    } finally {
-      setSocialLoading(prev => ({ ...prev, [provider.toLowerCase()]: false }));
-    }
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const _handleSignUpWithEmail = () => {
-    setShowSignUp(true);
-    setFormData({
-      userType: 'customer',
-      idNumber: '',
-      password: '',
-      confirmPassword: '',
-      rememberMe: false
-    });
-    setFormErrors({});
-    setLoginError('');
-  };
-
-  const validatePhoneNumber = async (phoneNumber) => {
-    try {
-      const cleanNumber = phoneNumber.replace(/\D/g, '');
-
-      if (cleanNumber.length >= 10) {
-        return {
-          isValid: true,
-          formattedNumber: formatPhoneNumber(cleanNumber),
-          countryCode: 'KE',
-          location: 'Kenya'
-        };
-      } else {
-        return {
-          isValid: false,
-          error: 'Invalid phone number'
-        };
-      }
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Phone validation error:', error);
-      }
-      return {
-        isValid: false,
-        error: 'Failed to validate phone number'
-      };
-    }
   };
 
   const handleInputFocus = (e) => {
@@ -466,56 +335,28 @@ function LoginSignup() {
     let isValid = false;
 
     switch (name) {
-      case 'email':
-        if (!/\S+@\S+\.\S+/.test(value)) {
-          error = 'Please enter a valid email address';
-        } else {
-          isValid = true;
-          showToast('Valid email format!', 'success');
-        }
-        break;
-      case 'phone':
-        if (value.length < 12) {
-          error = 'Please enter a complete phone number';
-        } else {
-          const validation = await validatePhoneNumber(value);
-          if (!validation.isValid) {
-            error = validation.error;
-          } else {
-            isValid = true;
-            showToast('Phone number validated!', 'success');
-          }
-        }
+      case 'idNumber':
+        const identifierValidation = validateIdentifier(value, formData.userType);
+        isValid = identifierValidation.isValid;
         break;
       case 'password':
-        if (value.length < 6) {
-          error = 'Password must be at least 6 characters';
-        } else {
-          isValid = true;
-        }
-        break;
-      case 'confirmPassword':
-        if (value !== signupData.password) {
-          error = 'Passwords do not match';
-        } else {
-          isValid = true;
-          showToast('Passwords match!', 'success');
-        }
+        const passwordValidation = validatePassword(value);
+        isValid = passwordValidation.isValid;
         break;
       default:
         isValid = true;
         break;
     }
 
-    if (error) {
-      setSignupErrors(prev => ({
+    if (!isValid) {
+      setFormErrors(prev => ({
         ...prev,
         [name]: error
       }));
       return false;
     }
 
-    setSignupErrors(prev => ({
+    setFormErrors(prev => ({
       ...prev,
       [name]: ''
     }));
@@ -523,207 +364,75 @@ function LoginSignup() {
     return isValid;
   };
 
-  // eslint-disable-next-line no-unused-vars
-  const _handleSignupInputChange = async (e) => {
-    const { name, value, type, checked } = e.target;
-    let processedValue = value;
-
-    if (name === 'phone') {
-      processedValue = formatPhoneNumber(value);
-
-      if (processedValue.length === 12) {
-        const validation = await validatePhoneNumber(processedValue);
-        if (!validation.isValid) {
-          setSignupErrors(prev => ({
-            ...prev,
-            phone: validation.error
-          }));
-        } else {
-          processedValue = validation.formattedNumber;
-          setSignupErrors(prev => ({
-            ...prev,
-            phone: ''
-          }));
-
-          showToast('Phone number validated!', 'success');
-        }
-      }
-    }
-
-    setSignupData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : processedValue
-    }));
-
-    if (signupErrors[name]) {
-      setSignupErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const _nextStep = () => {
-    if (signupStep === 1) {
-      const errors = validatePersonalInfo();
-      if (Object.keys(errors).length > 0) {
-        setSignupErrors(errors);
-        return;
-      }
-    } else if (signupStep === 2) {
-      const errors = validateAccountInfo();
-      if (Object.keys(errors).length > 0) {
-        setSignupErrors(errors);
-        return;
-      }
-    }
-    setSignupStep(prev => prev + 1);
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const prevStep = () => {
-    setSignupStep(prev => prev - 1);
-  };
-
-  const validatePersonalInfo = () => {
-    const errors = {};
-    if (!signupData.firstName.trim()) errors.firstName = 'First name is required';
-    if (!signupData.lastName.trim()) errors.lastName = 'Last name is required';
-    if (!signupData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
-      errors.email = 'Please enter a valid email';
-    }
-    if (!signupData.phone.trim()) {
-      errors.phone = 'Phone number is required';
-    } else if (!/^\d{3}-\d{3}-\d{4}$/.test(signupData.phone)) {
-      errors.phone = 'Please enter a valid phone number';
-    }
-    return errors;
-  };
-
-  const validateAccountInfo = () => {
-    const errors = {};
-    if (!signupData.password) {
-      errors.password = 'Password is required';
-    } else if (signupData.password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
-    }
-    if (signupData.password !== signupData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
-    }
-    if (!signupData.agreeToTerms) {
-      errors.agreeToTerms = 'You must agree to the terms and conditions';
-    }
-    return errors;
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const handleSignupSubmit = async (e) => {
-    e.preventDefault();
-    const errors = validateSignupForm();
-    if (Object.keys(errors).length > 0) {
-      setSignupErrors(errors);
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      showToast('Account created successfully!', 'success');
-      setShowSignUp(false);
-    } catch (error) {
-      showToast('Failed to create account. Please try again.', 'error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const validateSignupForm = () => {
-    const errors = {};
-    if (!signupData.firstName.trim()) errors.firstName = 'First name is required';
-    if (!signupData.lastName.trim()) errors.lastName = 'Last name is required';
-    if (!signupData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
-      errors.email = 'Please enter a valid email';
-    }
-    if (!signupData.phone.trim()) {
-      errors.phone = 'Phone number is required';
-    } else if (!/^\d{10}$/.test(signupData.phone)) {
-      errors.phone = 'Please enter a valid 10-digit phone number';
-    }
-    if (!signupData.password) {
-      errors.password = 'Password is required';
-    } else if (signupData.password.length < 8) {
-      errors.password = 'Password must be at least 8 characters';
-    }
-    if (signupData.password !== signupData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
-    }
-    if (!signupData.agreeToTerms) {
-      errors.agreeToTerms = 'You must agree to the terms and conditions';
-    }
-    return errors;
-  };
-
   return (
     <div className={`login-signup-page ${theme}-mode`}>
       <div className="split-screen" style={{ display: 'flex', flexDirection: 'row', minHeight: '100vh' }}>
         <div
-          className="left-panel"
+          className="left-panel gradient-bg"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           style={{ position: 'relative', flex: 1, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
         >
-          <img
-            src={slides[currentSlide].image}
-            alt={slides[currentSlide].description}
-            className="slider-image"
-            style={{ width: '100%', height: '100vh', objectFit: 'cover', objectPosition: 'center', transition: 'transform 8s ease-out, opacity 0.8s ease-in-out', transform: isTransitioning ? 'scale(1)' : 'scale(1.05)', opacity: isTransitioning ? 0.8 : 1, filter: 'brightness(0.7) saturate(1.1)', position: 'absolute', top: 0, left: 0 }}
-            loading="eager"
-            decoding="sync"
-          />
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3), rgba(0,0,0,0.7))', zIndex: 1 }} />
-          <div className="slide-description" style={{ zIndex: 2, position: 'absolute', bottom: 30, left: 0, width: '100%', color: '#fff', textAlign: 'center', fontSize: '1.2rem', fontWeight: 500, textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
-            {slides[currentSlide].description}
-          </div>
-          <div className="slider-controls" style={{ zIndex: 3, position: 'absolute', bottom: 10, left: 0, width: '100%', display: 'flex', justifyContent: 'center', gap: 8 }}>
-            {slides.map((_, index) => (
-              <div
-                key={index}
-                className={`slide-dot ${currentSlide === index ? 'active' : ''}`}
-                style={{ width: 12, height: 12, borderRadius: '50%', background: currentSlide === index ? '#fff' : 'rgba(255,255,255,0.5)', margin: '0 4px', cursor: 'pointer', border: currentSlide === index ? '2px solid #800000' : 'none' }}
-                onClick={() => {
-                  if (!isTransitioning) {
-                    setIsTransitioning(true);
-                    setTimeout(() => {
-                      setCurrentSlide(index);
-                      setIsTransitioning(false);
-                    }, 500);
-                  }
+          <div className="slider-container">
+            {slides.map((slide, index) => (
+              <img
+                key={slide.image}
+                src={slide.image}
+                alt={`Slide ${index + 1}`}
+                className={`slider-image ${index === currentImageIndex ? 'active' : ''}`}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  opacity: index === currentImageIndex ? 1 : 0,
+                  transition: 'opacity 1s ease-in-out'
                 }}
               />
             ))}
           </div>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3), rgba(0,0,0,0.7))', zIndex: 1 }} />
+          <div className="slide-description" style={{ zIndex: 2, position: 'absolute', bottom: 30, left: 0, width: '100%', color: '#fff', textAlign: 'center', fontSize: '1.2rem', fontWeight: 500, textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
+            {slides[currentImageIndex].description}
+          </div>
+          <div className="slider-controls" style={{ zIndex: 3, position: 'absolute', bottom: 10, left: 0, width: '100%', display: 'flex', justifyContent: 'center', gap: 8 }}>
+            {slides.map((slide, index) => (
+              <div
+                key={slide.image}
+                className={`slide-dot ${currentImageIndex === index ? 'active' : ''}`}
+                style={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: '50%',
+                  background: currentImageIndex === index ? '#fff' : 'rgba(255,255,255,0.5)',
+                  margin: '0 4px',
+                  cursor: 'pointer',
+                  border: currentImageIndex === index ? '2px solid #800000' : 'none',
+                  transition: 'all 0.3s ease'
+                }}
+                onClick={() => setCurrentImageIndex(index)}
+              />
+            ))}
+          </div>
         </div>
-        <div className="right-panel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f6f7fa' }}>
-          <div className="login-container" style={{
-            padding: '30px',
-            maxWidth: '450px',
-            margin: '0 auto',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            borderRadius: '10px',
-            backgroundColor: '#fff'
+        <div className="right-panel" style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh',
+            background: '#f6f7fa'
           }}>
-            <img src={logo} alt="cic insurance" className="logo" style={{ display: 'block', margin: '0 auto 20px', maxWidth: '150px' }} />
+          <div className="login-container">
+            <img src={logo} alt="cic insurance" className="logo throbbing-logo" style={{ display: 'block', margin: '0 auto 30px', maxWidth: '150px' }} />
             <h1 style={{ textAlign: 'center', marginBottom: '10px', color: '#800000' }}>Sign in to CIC EasyBima</h1>
             <p className="tagline" style={{ textAlign: 'center', marginBottom: '30px', color: '#666' }}>Getting insured with us is easy as 1-2-3</p>
 
             {loginError && (
-              <div className="error-message" style={{
+              <div className="error-message error-shake" style={{
                 color: '#721c24',
                 backgroundColor: '#f8d7da',
                 padding: '10px 15px',
@@ -774,7 +483,7 @@ function LoginSignup() {
                     placeholder={formData.userType === USER_TYPES.INTERMEDIARY
                       ? "Enter your KRA PIN"
                       : "Enter your ID/Passport Number"}
-                    className={formErrors.idNumber ? 'error' : ''}
+                    className={formErrors.idNumber ? 'error error-shake' : ''}
                     required
                     style={{
                       width: '100%',
@@ -786,17 +495,8 @@ function LoginSignup() {
                     onFocus={handleInputFocus}
                     onBlur={handleInputBlur}
                   />
-                  {validatedFields.idNumber && (
-                    <div className={`validation-icon ${validatedFields.idNumber}`} style={{
-                      position: 'absolute',
-                      right: '10px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      width: '20px',
-                      height: '20px',
-                      background: validatedFields.idNumber === 'valid' ? 'green' : 'red',
-                      borderRadius: '50%'
-                    }}></div>
+                  {validatedFields.idNumber === 'valid' && (
+                    <span className="success-checkmark">✓</span>
                   )}
                 </div>
                 {formErrors.idNumber && (
@@ -824,7 +524,7 @@ function LoginSignup() {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="Enter your password"
-                    className={formErrors.password ? 'error' : ''}
+                    className={formErrors.password ? 'error error-shake' : ''}
                     required
                     style={{
                       width: '100%',
@@ -836,17 +536,8 @@ function LoginSignup() {
                     onFocus={handleInputFocus}
                     onBlur={handleInputBlur}
                   />
-                  {validatedFields.password && (
-                    <div className={`validation-icon ${validatedFields.password}`} style={{
-                      position: 'absolute',
-                      right: '40px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      width: '20px',
-                      height: '20px',
-                      background: validatedFields.password === 'valid' ? 'green' : 'red',
-                      borderRadius: '50%'
-                    }}></div>
+                  {validatedFields.password === 'valid' && (
+                    <span className="success-checkmark">✓</span>
                   )}
                   <button
                     type="button"
@@ -903,23 +594,17 @@ function LoginSignup() {
               </button>
 
               {/* Direct link to dashboard for testing */}
-              <div style={{ textAlign: 'center', marginTop: '15px' }}>
+              {/* <div style={{ textAlign: 'center', marginTop: '15px' }}>
                 <Link to="/dashboard" style={{ color: '#800000', textDecoration: 'underline', fontWeight: 600 }}>
                   Go to Dashboard (Direct Link)
                 </Link>
-              </div>
+              </div> */}
             </form>
 
             <p className="register-link" style={{ textAlign: 'center', marginTop: '20px' }}>
               Don't have an account? <Link to="/register" style={{ color: 'maroon', textDecoration: 'underline' }}>Register</Link>
             </p>
           </div>
-
-          {toast.show && (
-            <div className={`toast-notification ${toast.type}`}>
-              {toast.message}
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -927,17 +612,8 @@ function LoginSignup() {
 }
 
 export default function AppWrapper() {
-  // Move theme state and effect here
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
-
-  useEffect(() => {
-    document.body.classList.remove('theme-dark', 'theme-light');
-    document.body.classList.add(theme === 'dark' ? 'theme-dark' : 'theme-light');
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeProvider>
       <BrowserRouter>
         <ErrorBoundary>
           <Routes>
@@ -956,12 +632,12 @@ export default function AppWrapper() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/register" element={<Register />} />
             <Route path="/quoteformsummary" element={<QuoteFormSummary />} />
-            <Route path="/calendar" element={<CalendarExample />} />
+            <Route path="/datepicker" element={<DatePickerDemo />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </ErrorBoundary>
       </BrowserRouter>
-    </ThemeContext.Provider>
+    </ThemeProvider>
   );
 }
 

@@ -3,6 +3,8 @@
  * Centralizes authentication logic, validation, and user management
  */
 
+import { validatePassword as strictValidatePassword } from './formValidation';
+
 // User type constants
 export const USER_TYPES = {
   CUSTOMER: 'customer',
@@ -88,15 +90,7 @@ export const validateIdentifier = (identifier, userType) => {
  * @returns {Object} - Validation result with isValid and error message
  */
 export const validatePassword = (password) => {
-  if (!password) {
-    return { isValid: false, error: 'Password is required' };
-  }
-  
-  if (!VALIDATION_REGEX.PASSWORD.test(password)) {
-    return { isValid: false, error: 'Password must be at least 6 characters' };
-  }
-  
-  return { isValid: true, error: '' };
+  return strictValidatePassword(password);
 };
 
 /**
@@ -109,9 +103,13 @@ export const login = async (userData) => {
     // In a real app, this would make an API call
     // For demo purposes, we're just simulating a successful login
     
+    // Set expiration time (24 hours from now)
+    const expiresAt = new Date().getTime() + (24 * 60 * 60 * 1000);
+    
     // Store authentication data
     sessionStorage.setItem('isAuthenticated', 'true');
     localStorage.setItem('authToken', 'demo-token-123');
+    localStorage.setItem('expiresAt', expiresAt.toString());
     localStorage.setItem('user', JSON.stringify({
       id: userData.identifier,
       userType: userData.userType
@@ -154,9 +152,17 @@ export const logout = async () => {
  */
 export const isAuthenticated = () => {
   const sessionAuth = sessionStorage.getItem('isAuthenticated') === 'true';
-  const localAuth = !!localStorage.getItem('authToken');
+  const token = localStorage.getItem('authToken');
+  const expiresAt = localStorage.getItem('expiresAt');
   
-  return sessionAuth && localAuth;
+  if (!token || !expiresAt) {
+    return false;
+  }
+  
+  // Check if token is expired
+  const isTokenValid = new Date().getTime() < parseInt(expiresAt);
+  
+  return sessionAuth && !!token && isTokenValid;
 };
 
 /**
@@ -165,7 +171,6 @@ export const isAuthenticated = () => {
  */
 export const getCurrentUser = () => {
   if (!isAuthenticated()) return null;
-  
   try {
     const userData = localStorage.getItem('user');
     return userData ? JSON.parse(userData) : null;
@@ -194,3 +199,4 @@ export const getIdentifierPlaceholder = (userType) => {
     ? 'Enter your KRA PIN' 
     : 'Enter your ID/Passport Number';
 };
+

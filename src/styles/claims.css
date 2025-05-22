@@ -11,7 +11,7 @@
 .claims-title {
   font-size: 2.3rem;
   font-weight: 700;
-  color: #1a237e;
+  color: #800000;
   margin-bottom: 32px;
   letter-spacing: 1px;
   text-align: center;
@@ -25,7 +25,7 @@
 }
 
 .claim-card {
-  background: linear-gradient(90deg, #e3eafc 0%, #f8fafc 100%);
+  background: linear-gradient(90deg, #fff8e1 0%, #fffde7 100%);
   border-radius: 14px;
   box-shadow: 0 2px 12px rgba(26,35,126,0.07);
   padding: 24px 28px;
@@ -33,14 +33,13 @@
   flex-direction: column;
   gap: 10px;
   transition: box-shadow 0.2s;
-  border-left: 6px solid #1976d2;
+  border-left: 6px solid #800000
 }
 .claim-card--processing {
-  border-left-color: #ff9800;
+  border-left-color: #800000;
 }
 .claim-card--settled {
-  border-left-color: #43a047;
-}
+  border-left-color: #FFD700;
 .claim-header {
   display: flex;
   align-items: center;
@@ -60,22 +59,23 @@
   margin-left: 10px;
 }
 .claim-status.processing {
-  background: #ff9800;
+  background: #800000;
 }
 .claim-status.settled {
-  background: #43a047;
+  background: #FFD700;
+  color: #000;
 }
 .claim-type {
   font-size: 1rem;
-  color: #374151;
+  color: #4c5137;
 }
 .claim-type span {
   font-weight: 500;
-  color: #1976d2;
+  color: #800000;
 }
 .view-details-btn {
   align-self: flex-end;
-  background: #1976d2;
+  background: #800000;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -87,25 +87,25 @@
   margin-top: 8px;
 }
 .view-details-btn:hover {
-  background: #1565c0;
+  background: #600000;
 }
 .new-claim-btn {
   display: block;
   margin: 0 auto;
-  background: linear-gradient(90deg, #43a047 0%, #1976d2 100%);
+  background: linear-gradient(90deg, #800000 0%, #FFD700 100%);
   color: #fff;
   border: none;
   border-radius: 22px;
   padding: 12px 38px;
   font-size: 1.1rem;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(67,160,71,0.10);
+  box-shadow: 0 2px 8px rgba(128,0,0,0.15);
   cursor: pointer;
   transition: background 0.18s, box-shadow 0.18s;
 }
 .new-claim-btn:hover {
-  background: linear-gradient(90deg, #1976d2 0%, #43a047 100%);
-  box-shadow: 0 4px 16px rgba(25,118,210,0.13);
+  background: linear-gradient(90deg, #FFD700 0%, #800000 100%);
+  box-shadow: 0 4px 16px rgba(128,0,0,0.20);
 }
 @media (max-width: 600px) {
   .modern-page.claims-page {
@@ -114,4 +114,5 @@
   .claim-card {
     padding: 16px 10px;
   }
+}
 }

@@ -1,0 +1,170 @@
+/* --- Register Page Custom Styles --- */
+.register-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5eaea 0%, #fff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.register-container {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(136,35,35,0.10);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  max-width: 700px; /* Increased from 520px */
+  width: 100%;
+  margin: 2rem auto;
+  animation: slideUp 0.5s ease-out;
+  min-width: 320px;
+  box-sizing: border-box;
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.register-logo {
+  width: 80px;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 1.2rem 0 0.5rem 0;
+}
+.step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f3eaea;
+  color: #a92219;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border: 2px solid #f3eaea;
+  transition: background 0.3s, color 0.3s, border 0.3s;
+}
+.step-dot.active {
+  background: #a92219;
+  color: #fff;
+  border: 2px solid #a92219;
+}
+.step-dot.completed {
+  background: #882323;
+  color: #fff;
+  border: 2px solid #882323;
+}
+
+.step-label {
+  font-size: 1.1rem;
+  color: #882323;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+}
+
+.register-form {
+  margin-top: 0.5rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 1.1rem;
+}
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.1rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #882323;
+  margin-bottom: 0.3rem;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e1e1e1;
+  border-radius: 7px;
+  font-size: 1rem;
+  background: #f9f9f9;
+  transition: border-color 0.3s;
+}
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #a92219;
+  outline: none;
+}
+
+.form-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+.error-text {
+  color: #fff;
+  background: #a92219;
+  border-radius: 5px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.92rem;
+  margin-top: 0.3rem;
+  display: inline-block;
+}
+
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.2rem;
+  gap: 1rem;
+}
+
+.next-button, .prev-button, .register-button {
+  padding: 0.85rem 2.2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(90deg, #a92219 60%, #882323 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(136,35,35,0.10);
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.next-button:hover, .register-button:hover {
+  background: linear-gradient(90deg, #882323 60%, #a92219 100%);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 16px rgba(136,35,35,0.13);
+}
+.prev-button {
+  background: #f3eaea;
+  color: #a92219;
+  border: 1.5px solid #a92219;
+}
+.prev-button:hover {
+  background: #fff;
+  color: #882323;
+  border: 1.5px solid #882323;
+}
+
+@media (max-width: 700px) {
+  .register-container {
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
+    border-radius: 10px;
+  }
+  .form-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

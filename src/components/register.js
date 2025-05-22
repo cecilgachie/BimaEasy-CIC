@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../styles/auth.css';
 import logo from '../assets/cic_insurance.png';
+import {
+  validateEmail,
+  validatePassword,
+  validateConfirmPassword,
+  validatePhoneNumber,
+  validateRequired,
+  formatPhoneNumber
+} from '../utils/formValidation';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -29,12 +37,17 @@ const RegisterPage = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let processedValue = value;
+
+    if (name === 'mobileNo') {
+      processedValue = formatPhoneNumber(value);
+    }
+
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === 'checkbox' ? checked : processedValue,
     });
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -43,81 +56,33 @@ const RegisterPage = () => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    
-    // Validate required fields
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
-    if (!formData.gender) newErrors.gender = 'Gender is required';
-    if (!formData.idPassportNo.trim()) newErrors.idPassportNo = 'ID/Passport Number is required';
-    
-    // Validate email
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-    
-    // Validate mobile number
-    if (!formData.mobileNo.trim()) {
-      newErrors.mobileNo = 'Mobile number is required';
-    } else if (!/^[0-9]{10}$/.test(formData.mobileNo.replace(/\D/g, ''))) {
-      newErrors.mobileNo = 'Please enter a valid mobile number';
-    }
-    
-    // Validate password
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
-    }
-    
-    // Validate confirm password
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
-    // Validate terms
-    if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = 'You must agree to the terms and conditions';
-    }
-    
-    return newErrors;
-  };
-
   const validateStep = (step) => {
     const newErrors = {};
     
     if (step === 1) {
-      if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-      if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
-      if (!formData.gender) newErrors.gender = 'Gender is required';
-      if (!formData.idPassportNo.trim()) newErrors.idPassportNo = 'ID/Passport Number is required';
+      const firstNameValidation = validateRequired(formData.firstName, 'First name');
+      if (!firstNameValidation.isValid) newErrors.firstName = firstNameValidation.error;
+
+      const lastNameValidation = validateRequired(formData.lastName, 'Last name');
+      if (!lastNameValidation.isValid) newErrors.lastName = lastNameValidation.error;
+
+      const genderValidation = validateRequired(formData.gender, 'Gender');
+      if (!genderValidation.isValid) newErrors.gender = genderValidation.error;
+
+      const idValidation = validateRequired(formData.idPassportNo, 'ID/Passport Number');
+      if (!idValidation.isValid) newErrors.idPassportNo = idValidation.error;
       
-      if (!formData.email.trim()) {
-        newErrors.email = 'Email is required';
-      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = 'Please enter a valid email';
-      }
+      const emailValidation = validateEmail(formData.email);
+      if (!emailValidation.isValid) newErrors.email = emailValidation.error;
       
-      if (!formData.mobileNo.trim()) {
-        newErrors.mobileNo = 'Mobile number is required';
-      } else if (!/^[0-9]{10}$/.test(formData.mobileNo.replace(/\D/g, ''))) {
-        newErrors.mobileNo = 'Please enter a valid mobile number';
-      }
+      const phoneValidation = validatePhoneNumber(formData.mobileNo);
+      if (!phoneValidation.isValid) newErrors.mobileNo = phoneValidation.error;
     } else if (step === 2) {
-      if (!formData.password) {
-        newErrors.password = 'Password is required';
-      } else if (formData.password.length < 8) {
-        newErrors.password = 'Password must be at least 8 characters';
-      }
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) newErrors.password = passwordValidation.error;
       
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Passwords do not match';
-      }
+      const confirmPasswordValidation = validateConfirmPassword(formData.password, formData.confirmPassword);
+      if (!confirmPasswordValidation.isValid) newErrors.confirmPassword = confirmPasswordValidation.error;
       
       if (!formData.agreeToTerms) {
         newErrors.agreeToTerms = 'You must agree to the terms and conditions';
@@ -144,7 +109,7 @@ const RegisterPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    const validationErrors = validateForm();
+    const validationErrors = validateStep(currentStep);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
